@@ -221,15 +221,12 @@ Pull requests are welcome. For major changes, open an issue first to discuss wha
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License.
+Project Link : [Link text]([URL](https://iplmatchups.streamlit.app/))
 
 ---
 
 <div align="center">
 
 **Built with ❤️ for cricket analytics**  
-*IPL data · Machine Learning · Streamlit*
 
 </div>
