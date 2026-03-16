@@ -1,0 +1,9 @@
+[ 2026-03-15 23:31:06,518 ] 16 root - INFO - Training pipleine started
+[ 2026-03-15 23:31:06,524 ] 23 root - INFO - Entered DataIngestion method
+[ 2026-03-15 23:31:12,306 ] 26 root - INFO - Load aindi bro
+[ 2026-03-15 23:31:26,066 ] 29 root - INFO - Raw dataset is stored in artifacts bro
+[ 2026-03-15 23:31:36,857 ] 33 root - INFO - Train test split completed
+[ 2026-03-15 23:31:36,914 ] 19 root - INFO - Ingestion Done
+[ 2026-03-15 23:31:41,089 ] 68 root - INFO - Reading test and train data completed
+[ 2026-03-15 23:31:41,259 ] 52 root - INFO - Created preprocessing piplines
+[ 2026-03-15 23:31:41,261 ] 78 root - INFO - applying preprocessing object

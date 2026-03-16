@@ -1,0 +1,4 @@
+[ 2026-03-15 21:40:27,772 ] 23 root - INFO - Entered DataIngestion method
+[ 2026-03-15 21:40:29,483 ] 26 root - INFO - Load aindi bro
+[ 2026-03-15 21:40:36,782 ] 29 root - INFO - Raw dataset is stored in artifacts bro
+[ 2026-03-15 21:40:44,544 ] 33 root - INFO - Train test split completed
