@@ -221,7 +221,7 @@ Pull requests are welcome. For major changes, open an issue first to discuss wha
 
 ---
 
-Project Link : [Link text](https://iplmatchups.streamlit.app/)
+[Project Link](https://iplmatchups.streamlit.app/)
 
 ---
 
