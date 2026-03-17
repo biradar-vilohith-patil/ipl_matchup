@@ -6,59 +6,57 @@ import plotly.graph_objects as go
 from src.pipeline.predict_pipeline import CustomData, PredictPipeline
 
 # ═══════════════════════════════════════════════════════
-# CURRENT IPL SQUADS
+# CURRENT IPL 2026 SQUADS (Strictly Bowlers/All-Rounders)
 # ═══════════════════════════════════════════════════════
 
 CURRENT_SQUADS = {
-    "Mumbai Indians": [
-        "Jasprit Bumrah", "Hardik Pandya", "Trent Boult", "Piyush Chawla",
-        "Kumar Kartikeya", "Akash Madhwal", "Jason Behrendorff", "Arjun Tendulkar",
-        "Mohsin Khan", "Hrithik Shokeen", "Shams Mulani"
-    ],
     "Chennai Super Kings": [
-        "Deepak Chahar", "Ravindra Jadeja", "Moeen Ali", "Tushar Deshpande",
-        "Matheesha Pathirana", "Simarjeet Singh", "Maheesh Theekshana",
-        "Shardul Thakur", "Nishant Sindhu", "Rajvardhan Hangargekar"
-    ],
-    "Royal Challengers Bengaluru": [
-        "Mohammed Siraj", "Glenn Maxwell", "Wanindu Hasaranga", "Harshal Patel",
-        "Josh Hazlewood", "Akash Deep", "Reece Topley", "Vijaykumar Vyshak",
-        "Karn Sharma", "Mayank Dagar", "Lockie Ferguson"
-    ],
-    "Kolkata Knight Riders": [
-        "Sunil Narine", "Andre Russell", "Varun Chakaravarthy", "Mitchell Starc",
-        "Harshit Rana", "Suyash Sharma", "Sakib Hussain", "Anrich Nortje",
-        "Spencer Johnson", "Ramandeep Singh"
+        "Shivam Dube", "Noor Ahmad", "Nathan Ellis", "Khaleel Ahmed", 
+        "Shreyas Gopal", "Mukesh Choudhary", "Jamie Overton", "Akeal Hosein", 
+        "Matt Henry", "Rahul Chahar"
     ],
     "Delhi Capitals": [
-        "Kuldeep Yadav", "Axar Patel", "Anrich Nortje", "Ishant Sharma",
-        "Khaleel Ahmed", "Lungi Ngidi", "Mukesh Kumar", "Lalit Yadav",
-        "Sumit Kumar", "Praveen Dubey"
-    ],
-    "Punjab Kings": [
-        "Arshdeep Singh", "Sam Curran", "Kagiso Rabada", "Rahul Chahar",
-        "Nathan Ellis", "Harpreet Brar", "Harshal Patel", "Shivam Singh",
-        "Rishi Dhawan", "Vidwath Kaverappa"
-    ],
-    "Rajasthan Royals": [
-        "Yuzvendra Chahal", "Trent Boult", "Sandeep Sharma", "Prasidh Krishna",
-        "Ravichandran Ashwin", "Jason Holder", "Adam Zampa", "Kuldeep Sen",
-        "Nandre Burger", "Kuldip Yadav"
-    ],
-    "Sunrisers Hyderabad": [
-        "Bhuvneshwar Kumar", "T Natarajan", "Pat Cummins", "Mayank Markande",
-        "Shahbaz Ahmed", "Marco Jansen", "Jaydev Unadkat", "Umran Malik",
-        "Akeal Hosein", "Fazalhaq Farooqi"
+        "Axar Patel", "Mitchell Starc", "T Natarajan", "Mukesh Kumar", 
+        "Dushmantha Chameera", "Lungi Ngidi", "Kyle Jamieson", "Kuldeep Yadav"
     ],
     "Gujarat Titans": [
-        "Mohammed Shami", "Rashid Khan", "Noor Ahmad", "Darshan Nalkande",
-        "Mohit Sharma", "Yash Dayal", "Jayant Yadav", "Sai Kishore",
-        "Kartik Tyagi", "Sandeep Warrier"
+        "Rashid Khan", "Kagiso Rabada", "Mohammed Siraj", "Prasidh Krishna", 
+        "Ishant Sharma", "Sai Kishore", "Washington Sundar", "Jayant Yadav", 
+        "Jason Holder", "Luke Wood"
+    ],
+    "Kolkata Knight Riders": [
+        "Sunil Narine", "Varun Chakaravarthy", "Harshit Rana", "Vaibhav Arora", 
+        "Umran Malik", "Cameron Green", "Matheesha Pathirana", "Kartik Tyagi", 
+        "Mustafizur Rahman", "Akash Deep"
     ],
     "Lucknow Super Giants": [
-        "Ravi Bishnoi", "Mohsin Khan", "Mark Wood", "Naveen-ul-Haq",
-        "Yash Thakur", "Krunal Pandya", "Amit Mishra", "Kyle Mayers",
-        "Shamar Joseph", "Arshad Khan"
+        "Mohammed Shami", "Avesh Khan", "Wanindu Hasaranga", "Anrich Nortje", 
+        "Mayank Yadav", "Mohsin Khan", "Mitchell Marsh", "Shahbaz Ahmed", 
+        "Akash Singh", "Arjun Tendulkar"
+    ],
+    "Mumbai Indians": [
+        "Hardik Pandya", "Jasprit Bumrah", "Trent Boult", "Allah Ghazanfar", 
+        "Deepak Chahar", "Mayank Markande", "Shardul Thakur", "Mitchell Santner", 
+        "Corbin Bosch"
+    ],
+    "Punjab Kings": [
+        "Marcus Stoinis", "Arshdeep Singh", "Yuzvendra Chahal", "Harpreet Brar", 
+        "Marco Jansen", "Azmatullah Omarzai", "Vyshak Vijaykumar", "Yash Thakur", 
+        "Xavier Bartlett", "Lockie Ferguson", "Ben Dwarshuis"
+    ],
+    "Rajasthan Royals": [
+        "Riyan Parag", "Ravindra Jadeja", "Sam Curran", "Jofra Archer", 
+        "Tushar Deshpande", "Ravi Bishnoi", "Sandeep Sharma", "Nandre Burger", 
+        "Kwena Maphaka"
+    ],
+    "Royal Challengers Bengaluru": [
+        "Krunal Pandya", "Josh Hazlewood", "Yash Dayal", "Bhuvneshwar Kumar", 
+        "Nuwan Thushara", "Rasikh Dar", "Suyash Sharma", "Swapnil Singh"
+    ],
+    "SunRisers Hyderabad": [
+        "Pat Cummins", "Harshal Patel", "Jaydev Unadkat", "Shivam Mavi", 
+        "Liam Livingstone", "Nitish Kumar Reddy", "Brydon Carse", "Zeeshan Ansari", 
+        "Abhishek Sharma"
     ],
 }
 
@@ -214,7 +212,6 @@ label { color:rgba(255,255,255,0.6) !important; font-size:13px !important; }
 </style>
 """, unsafe_allow_html=True)
 
-
 @st.cache_data
 def load_data():
     return pd.read_csv("data/processed/clean_ipl_data.csv")
@@ -227,7 +224,6 @@ def load_predictor():
 def batch_predict(bowlers: tuple, batsman, batting_team, bowling_team, over, pressure_index):
     pipeline = load_predictor()
     
-    # Map the UI name to the Kaggle standard
     batsman_norm = pipeline.normalize_name(batsman)
 
     rows = []
@@ -261,23 +257,28 @@ def batch_predict(bowlers: tuple, batsman, batting_team, bowling_team, over, pre
 
         def gp(k): return float(prob_row.get(k, 0.0))
 
-        # Using the new tactical backend groups
         dot_p  = gp("dot")
         rot_p  = gp("rotation")
         bnd_p  = gp("boundary")
         wkt_p  = gp("wicket")
         
-        # New Scoring Formula
-        score  = round((1.2 * dot_p) + (2.0 * wkt_p) - (0.5 * rot_p) - (1.0 * bnd_p), 4)
+        # ── ABSTRACTION TO EFFECTIVENESS RATINGS ──
+        # Instead of raw probabilities, we translate them to standard 0-100 Effectiveness metrics.
+        # Boundary Risk is inverted to Boundary Control so higher is always better.
+        
+        dot_eff = round(dot_p * 100, 1)
+        wkt_threat = round(wkt_p * 100, 1)
+        bnd_control = round((1.0 - bnd_p) * 100, 1) 
+
+        raw_score = (dot_p * 40) + (wkt_p * 100) + (rot_p * 15) - (bnd_p * 40)
+        score = max(0.0, min(100.0, round(raw_score, 1)))
 
         results.append({
-            "Bowler":         bowler,
-            "Tactical Score": score,
-            "Dot %":          round(dot_p  * 100, 1),
-            "Wicket %":       round(wkt_p  * 100, 1),
-            "Four %":         round((bnd_p * 0.7) * 100, 1),  # Simulated split for UI
-            "Six %":          round((bnd_p * 0.3) * 100, 1),  # Simulated split for UI
-            "Boundary %":     round(bnd_p  * 100, 1),
+            "Bowler":            bowler,
+            "Tactical Score":    score,
+            "Dot Effectiveness": dot_eff,
+            "Wicket Threat":     wkt_threat,
+            "Boundary Control":  bnd_control,
         })
 
     return pd.DataFrame(results).sort_values("Tactical Score", ascending=False)
@@ -339,8 +340,7 @@ if not available_bowlers:
     st.warning(f"No squad data found for **{bowling_team}**. Add them to CURRENT_SQUADS in app.py.")
     st.stop()
 
-st.caption(f"📋 Analysing **{len(available_bowlers)} bowlers** from {bowling_team}'s current squad")
-
+st.caption(f"📋 Analysing **{len(available_bowlers)}** primary bowlers/all-rounders from {bowling_team}")
 
 st.markdown('<p class="section-label">📊 Match Situation</p>', unsafe_allow_html=True)
 
@@ -448,10 +448,10 @@ if run_btn:
 
     st.markdown(f"""
     <div class="metric-strip">
-        <div class="metric-pill"><div class="val">{top['Dot %']}%</div><div class="lbl">Dot Ball</div></div>
-        <div class="metric-pill"><div class="val">{top['Wicket %']}%</div><div class="lbl">Wicket Prob</div></div>
-        <div class="metric-pill"><div class="val">{top['Boundary %']}%</div><div class="lbl">Boundary Risk</div></div>
-        <div class="metric-pill"><div class="val">{top['Tactical Score']}</div><div class="lbl">Best Score</div></div>
+        <div class="metric-pill"><div class="val">{top['Dot Effectiveness']}%</div><div class="lbl">Dot Effectiveness</div></div>
+        <div class="metric-pill"><div class="val">{top['Wicket Threat']}%</div><div class="lbl">Wicket Threat</div></div>
+        <div class="metric-pill"><div class="val">{top['Boundary Control']}%</div><div class="lbl">Boundary Control</div></div>
+        <div class="metric-pill"><div class="val">{top['Tactical Score']}</div><div class="lbl">Overall Score</div></div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -465,7 +465,7 @@ if run_btn:
         st.markdown('<p class="section-label">🎯 Best Matchups</p>', unsafe_allow_html=True)
         max_score = best_df["Tactical Score"].max()
         for i, row in best_df.iterrows():
-            pct_bar = int((row["Tactical Score"] / max_score) * 100) if max_score > 0 else 0
+            pct_bar = int((row["Tactical Score"] / 100) * 100) if max_score > 0 else 0
             medal   = ["🥇","🥈","🥉"][i] if i < 3 else str(i + 1)
             st.markdown(f"""
             <div class="bowler-row">
@@ -481,17 +481,17 @@ if run_btn:
             """, unsafe_allow_html=True)
 
     with col_r:
-        st.markdown('<p class="section-label">📊 Probability Breakdown</p>', unsafe_allow_html=True)
+        st.markdown('<p class="section-label">📊 Effectiveness Breakdown</p>', unsafe_allow_html=True)
         fig_bar = go.Figure()
-        fig_bar.add_trace(go.Bar(name="Dot %",      x=best_df["Bowler"], y=best_df["Dot %"],      marker_color="#f5a623",              marker_line_width=0))
-        fig_bar.add_trace(go.Bar(name="Wicket %",   x=best_df["Bowler"], y=best_df["Wicket %"],   marker_color="#e8005a",              marker_line_width=0))
-        fig_bar.add_trace(go.Bar(name="Boundary %", x=best_df["Bowler"], y=best_df["Boundary %"], marker_color="rgba(255,255,255,.18)", marker_line_width=0))
+        fig_bar.add_trace(go.Bar(name="Dot Eff.",      x=best_df["Bowler"], y=best_df["Dot Effectiveness"], marker_color="#f5a623",              marker_line_width=0))
+        fig_bar.add_trace(go.Bar(name="Wicket Threat", x=best_df["Bowler"], y=best_df["Wicket Threat"],     marker_color="#e8005a",              marker_line_width=0))
+        fig_bar.add_trace(go.Bar(name="Bnd. Control",  x=best_df["Bowler"], y=best_df["Boundary Control"],  marker_color="rgba(255,255,255,.18)", marker_line_width=0))
         fig_bar.update_layout(
             barmode="group", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
             font=dict(color="white", family="DM Sans"),
             legend=dict(orientation="h", y=-0.22),
             xaxis=dict(tickangle=-30, gridcolor="rgba(255,255,255,0.05)"),
-            yaxis=dict(gridcolor="rgba(255,255,255,0.05)", ticksuffix="%"),
+            yaxis=dict(gridcolor="rgba(255,255,255,0.05)", ticksuffix=""),
             margin=dict(l=0,r=0,t=10,b=0), height=370
         )
         st.plotly_chart(fig_bar, use_container_width=True, key="fig_bar")
@@ -499,7 +499,7 @@ if run_btn:
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
     st.markdown('<p class="section-label">🕸 Top 3 Skill Radar</p>', unsafe_allow_html=True)
 
-    categories   = ["Dot %", "Wicket %", "Four %", "Six %", "Boundary %"]
+    categories   = ["Dot Effectiveness", "Wicket Threat", "Boundary Control"]
     colors_radar = [
         ("#f5a623", "rgba(245,166,35,0.12)"),
         ("#e8005a", "rgba(232,0,90,0.12)"),
@@ -564,7 +564,7 @@ if run_btn:
         st.plotly_chart(fig_w, use_container_width=True, key="fig_worst")
 
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
-    with st.expander(f"📋 Full Rankings — All {bowling_team} Bowlers"):
+    with st.expander(f"📋 Full Rankings — All Evaluated {bowling_team} Bowlers"):
         st.dataframe(matchup_df.reset_index(drop=True), use_container_width=True, height=380)
 
 st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
