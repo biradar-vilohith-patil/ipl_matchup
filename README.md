@@ -60,7 +60,7 @@ This heuristic balances aggression against economy, rewarding wicket-taking abil
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/biradar-vilohith-patil/ipl-matchup-engine.git
+git clone https://github.com/biradar-vilohith-patil/ipl_matchup.git
 cd ipl-matchup-engine
 ```
 
