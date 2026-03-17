@@ -1,0 +1,29 @@
+[ 2026-03-17 15:26:42,616 ] 21 root - INFO - Training pipeline started
+[ 2026-03-17 15:26:42,616 ] 31 root - INFO - Entered DataIngestion.initiate_data_ingestion()
+[ 2026-03-17 15:26:43,395 ] 34 root - INFO - Dataset loaded: 239693 rows, 45 cols
+[ 2026-03-17 15:26:48,200 ] 42 root - INFO - Raw dataset saved to artifacts/
+[ 2026-03-17 15:26:52,705 ] 51 root - INFO - Train/test split done → train=191754, test=47939
+[ 2026-03-17 15:26:52,728 ] 30 root - INFO - Data ingestion completed
+[ 2026-03-17 15:26:54,358 ] 77 root - INFO - Train shape: (191754, 45) | Test shape: (47939, 45)
+[ 2026-03-17 15:26:54,484 ] 96 root - INFO - bowler_economy columns coalesced
+[ 2026-03-17 15:26:54,656 ] 108 root - INFO - Outcome distribution:
+outcome
+rotation    104563
+dot          84504
+boundary     38799
+wicket       11827
+Name: count, dtype: int64
+[ 2026-03-17 15:26:54,844 ] 60 root - INFO - Creating preprocessing pipelines
+[ 2026-03-17 15:26:54,844 ] 123 root - INFO - Fitting and transforming with preprocessor
+[ 2026-03-17 15:26:56,122 ] 143 root - INFO - Preprocessor saved to artifacts/
+[ 2026-03-17 15:26:56,145 ] 41 root - INFO - Data transformation completed
+[ 2026-03-17 15:26:56,145 ] 66 root - INFO - Splitting train/test arrays
+[ 2026-03-17 15:26:56,145 ] 52 root - INFO - Training RandomForest ...
+[ 2026-03-17 15:27:30,449 ] 57 root - INFO - RandomForest → Test Accuracy: 0.4050
+[ 2026-03-17 15:27:30,638 ] 52 root - INFO - Training GradientBoosting ...
+[ 2026-03-17 15:33:54,780 ] 57 root - INFO - GradientBoosting → Test Accuracy: 0.5159
+[ 2026-03-17 15:33:55,043 ] 52 root - INFO - Training LogisticRegression ...
+[ 2026-03-17 15:34:02,573 ] 57 root - INFO - LogisticRegression → Test Accuracy: 0.4511
+[ 2026-03-17 15:34:02,768 ] 77 root - INFO - Best model: GradientBoosting with accuracy 0.5159
+[ 2026-03-17 15:34:02,792 ] 84 root - INFO - Best model saved to artifacts/model.pkl
+[ 2026-03-17 15:34:02,793 ] 53 root - INFO - Model training completed with accuracy: 0.515926489914266

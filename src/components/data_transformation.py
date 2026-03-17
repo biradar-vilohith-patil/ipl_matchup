@@ -38,15 +38,19 @@ class DataTransformation:
                 "strike_rate_vs_bowler", "dismissal_rate", "avg_runs"
             ]
 
+            # FIX: Removed "batsman" and "bowler" to prevent the RAM explosion
             categorical_cols = [
-                "batsman", "bowler", "batting_team",
-                "bowling_team", "venue", "match_phase"
+                "batting_team",
+                "bowling_team",
+                "venue",
+                "match_phase"
             ]
 
             num_pipeline = Pipeline(steps=[
                 ("imputer", SimpleImputer(strategy="median")),
                 ("scaler",  StandardScaler())
             ])
+            # ... rest of the code remains identical ...
 
             cat_pipeline = Pipeline(steps=[
                 ("imputer",         SimpleImputer(strategy="most_frequent")),

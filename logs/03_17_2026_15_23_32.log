@@ -1,0 +1,17 @@
+[ 2026-03-17 15:23:37,989 ] 21 root - INFO - Training pipeline started
+[ 2026-03-17 15:23:37,989 ] 31 root - INFO - Entered DataIngestion.initiate_data_ingestion()
+[ 2026-03-17 15:23:38,796 ] 34 root - INFO - Dataset loaded: 239693 rows, 45 cols
+[ 2026-03-17 15:23:43,481 ] 42 root - INFO - Raw dataset saved to artifacts/
+[ 2026-03-17 15:23:48,371 ] 51 root - INFO - Train/test split done → train=191754, test=47939
+[ 2026-03-17 15:23:48,383 ] 30 root - INFO - Data ingestion completed
+[ 2026-03-17 15:23:49,486 ] 73 root - INFO - Train shape: (191754, 45) | Test shape: (47939, 45)
+[ 2026-03-17 15:23:49,537 ] 92 root - INFO - bowler_economy columns coalesced
+[ 2026-03-17 15:23:49,699 ] 104 root - INFO - Outcome distribution:
+outcome
+rotation    104563
+dot          84504
+boundary     38799
+wicket       11827
+Name: count, dtype: int64
+[ 2026-03-17 15:23:49,881 ] 56 root - INFO - Creating preprocessing pipelines
+[ 2026-03-17 15:23:49,881 ] 119 root - INFO - Fitting and transforming with preprocessor
