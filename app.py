@@ -5,10 +5,8 @@ import plotly.graph_objects as go
 
 from src.pipeline.predict_pipeline import CustomData, PredictPipeline
 
-
 # ═══════════════════════════════════════════════════════
-# CURRENT IPL SQUADS  (hardcoded — overrides stale CSV data)
-# Update this dict each season to keep squads accurate.
+# CURRENT IPL SQUADS
 # ═══════════════════════════════════════════════════════
 
 CURRENT_SQUADS = {
@@ -63,10 +61,6 @@ CURRENT_SQUADS = {
         "Shamar Joseph", "Arshad Khan"
     ],
 }
-
-# ═══════════════════════════════════════════════════════
-# PAGE CONFIG
-# ═══════════════════════════════════════════════════════
 
 st.set_page_config(
     page_title="IPL Tactical Matchup Engine",
@@ -221,10 +215,6 @@ label { color:rgba(255,255,255,0.6) !important; font-size:13px !important; }
 """, unsafe_allow_html=True)
 
 
-# ═══════════════════════════════════════════════════════
-# LOAD DATA + PIPELINE
-# ═══════════════════════════════════════════════════════
-
 @st.cache_data
 def load_data():
     return pd.read_csv("data/processed/clean_ipl_data.csv")
@@ -235,24 +225,22 @@ def load_predictor():
 
 @st.cache_data
 def batch_predict(bowlers: tuple, batsman, batting_team, bowling_team, over, pressure_index):
-    """
-    Runs all bowlers through the model in ONE batched call.
-    This is the key performance fix — instead of N separate
-    transform+predict calls, we do exactly 1 of each.
-    """
     pipeline = load_predictor()
+    
+    # Map the UI name to the Kaggle standard
+    batsman_norm = pipeline.normalize_name(batsman)
 
     rows = []
     for bowler in bowlers:
+        bowler_norm = pipeline.normalize_name(bowler)
         cd = CustomData(
-            batsman=batsman, bowler=bowler,
+            batsman=batsman_norm, bowler=bowler_norm,
             batting_team=batting_team, bowling_team=bowling_team,
             over=over, pressure_index=pressure_index
         )
         df_row = cd.get_data_as_dataframe()
 
-        # Enrich with historical stats (still per-bowler lookup, but cheap)
-        stats = pipeline.get_stats(batsman, bowler)
+        stats = pipeline.get_stats(batsman_norm, bowler_norm)
         df_row["match_phase"]           = pipeline.get_phase(over)
         df_row["strike_rate_vs_bowler"] = stats["strike_rate_vs_bowler"]
         df_row["dismissal_rate"]        = stats["dismissal_rate"]
@@ -263,8 +251,6 @@ def batch_predict(bowlers: tuple, batsman, batting_team, bowling_team, over, pre
         rows.append(df_row)
 
     batch_df   = pd.concat(rows, ignore_index=True)
-
-    # ── SINGLE transform + predict call for all bowlers ──
     scaled     = pipeline.preprocessor.transform(batch_df)
     probs      = pipeline.model.predict_proba(scaled)
     classes    = pipeline.model.classes_
@@ -275,20 +261,22 @@ def batch_predict(bowlers: tuple, batsman, batting_team, bowling_team, over, pre
 
         def gp(k): return float(prob_row.get(k, 0.0))
 
+        # Using the new tactical backend groups
         dot_p  = gp("dot")
+        rot_p  = gp("rotation")
+        bnd_p  = gp("boundary")
         wkt_p  = gp("wicket")
-        four_p = gp("four")
-        six_p  = gp("six")
-        bnd_p  = four_p + six_p
-        score  = round((0.6 * dot_p) + (1.0 * wkt_p) - (0.7 * bnd_p), 4)
+        
+        # New Scoring Formula
+        score  = round((1.2 * dot_p) + (2.0 * wkt_p) - (0.5 * rot_p) - (1.0 * bnd_p), 4)
 
         results.append({
             "Bowler":         bowler,
             "Tactical Score": score,
             "Dot %":          round(dot_p  * 100, 1),
             "Wicket %":       round(wkt_p  * 100, 1),
-            "Four %":         round(four_p * 100, 1),
-            "Six %":          round(six_p  * 100, 1),
+            "Four %":         round((bnd_p * 0.7) * 100, 1),  # Simulated split for UI
+            "Six %":          round((bnd_p * 0.3) * 100, 1),  # Simulated split for UI
             "Boundary %":     round(bnd_p  * 100, 1),
         })
 
@@ -299,11 +287,6 @@ df        = load_data()
 predictor = load_predictor()
 all_batsmen = sorted(df["batsman"].dropna().unique().tolist())
 all_teams   = sorted(CURRENT_SQUADS.keys())
-
-
-# ═══════════════════════════════════════════════════════
-# HERO HEADER  — much larger and dramatic
-# ═══════════════════════════════════════════════════════
 
 st.markdown("""
 <div class="hero-outer">
@@ -318,11 +301,6 @@ st.markdown("""
     <div class="hero-divider"></div>
 </div>
 """, unsafe_allow_html=True)
-
-
-# ═══════════════════════════════════════════════════════
-# SECTION 1 — PLAYERS & TEAMS
-# ═══════════════════════════════════════════════════════
 
 st.markdown('<p class="section-label">👥 Players & Teams</p>', unsafe_allow_html=True)
 st.markdown('<p class="search-hint">💡 Type to search in any dropdown below</p>', unsafe_allow_html=True)
@@ -355,7 +333,6 @@ with col3:
         help="Only bowlers from this team's current squad will be analysed"
     )
 
-# Resolve bowlers from CURRENT_SQUADS (fixes stale CSV data issue)
 available_bowlers = CURRENT_SQUADS.get(bowling_team, [])
 
 if not available_bowlers:
@@ -364,10 +341,6 @@ if not available_bowlers:
 
 st.caption(f"📋 Analysing **{len(available_bowlers)} bowlers** from {bowling_team}'s current squad")
 
-
-# ═══════════════════════════════════════════════════════
-# SECTION 2 — MATCH SITUATION
-# ═══════════════════════════════════════════════════════
 
 st.markdown('<p class="section-label">📊 Match Situation</p>', unsafe_allow_html=True)
 
@@ -390,8 +363,6 @@ with col8:
         st.markdown("<br>", unsafe_allow_html=True)
         st.caption("Target only applies in a chase")
 
-
-# ── PRESSURE INDEX ──
 balls_bowled = max((over - 1) * 6, 1)
 current_rr   = round((current_score / balls_bowled) * 6, 2)
 is_chase     = "Chase" in match_type
@@ -458,19 +429,12 @@ st.markdown(f"""
 
 st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
 
-
-# ═══════════════════════════════════════════════════════
-# RUN ENGINE BUTTON
-# ═══════════════════════════════════════════════════════
-
 run_btn = st.button("🔍 ANALYSE MATCHUPS")
 
 if run_btn:
-
     with st.spinner(f"Running batch analysis for {len(available_bowlers)} bowlers..."):
-        # ── BATCHED PREDICTION — single transform+predict call ──
         matchup_df = batch_predict(
-            bowlers=tuple(available_bowlers),   # tuple so st.cache_data can hash it
+            bowlers=tuple(available_bowlers),
             batsman=batsman,
             batting_team=batting_team,
             bowling_team=bowling_team,
@@ -482,7 +446,6 @@ if run_btn:
     worst_df = matchup_df.tail(min(5, len(matchup_df))).sort_values("Tactical Score").reset_index(drop=True)
     top      = best_df.iloc[0]
 
-    # ── METRIC STRIP ──
     st.markdown(f"""
     <div class="metric-strip">
         <div class="metric-pill"><div class="val">{top['Dot %']}%</div><div class="lbl">Dot Ball</div></div>
@@ -496,7 +459,6 @@ if run_btn:
 
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
 
-    # ── BEST BOWLERS + BAR CHART ──
     col_l, col_r = st.columns([1, 1])
 
     with col_l:
@@ -534,7 +496,6 @@ if run_btn:
         )
         st.plotly_chart(fig_bar, use_container_width=True, key="fig_bar")
 
-    # ── RADAR — TOP 3 ──
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
     st.markdown('<p class="section-label">🕸 Top 3 Skill Radar</p>', unsafe_allow_html=True)
 
@@ -565,7 +526,6 @@ if run_btn:
     )
     st.plotly_chart(fig_radar, use_container_width=True, key="fig_radar")
 
-    # ── BOWLERS TO AVOID ──
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
     st.markdown('<p class="section-label">⚠️ Bowlers To Avoid</p>', unsafe_allow_html=True)
 
@@ -603,15 +563,9 @@ if run_btn:
         )
         st.plotly_chart(fig_w, use_container_width=True, key="fig_worst")
 
-    # ── FULL TABLE ──
     st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
     with st.expander(f"📋 Full Rankings — All {bowling_team} Bowlers"):
         st.dataframe(matchup_df.reset_index(drop=True), use_container_width=True, height=380)
-
-
-# ═══════════════════════════════════════════════════════
-# FOOTER
-# ═══════════════════════════════════════════════════════
 
 st.markdown('<div class="fancy-divider"></div>', unsafe_allow_html=True)
 st.markdown(

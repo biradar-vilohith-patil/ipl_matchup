@@ -5,13 +5,7 @@ import numpy as np
 from src.exception import CustomException
 from src.utils import load_object
 
-# Consistent CSV filename — must match data_ingestion.py
 RAW_CSV_PATH = "data/processed/clean_ipl_data.csv"
-
-
-# -------------------------------------------------------
-# CUSTOM DATA (user input)
-# -------------------------------------------------------
 
 class CustomData:
 
@@ -22,7 +16,7 @@ class CustomData:
         batting_team: str,
         bowling_team: str,
         over: int,
-        pressure_index: float = 1.0   # replaces raw "ball" — computed in app.py
+        pressure_index: float = 1.0   
     ):
         self.batsman        = batsman
         self.bowler         = bowler
@@ -39,7 +33,6 @@ class CustomData:
                 "batting_team": [self.batting_team],
                 "bowling_team": [self.bowling_team],
                 "over":         [self.over],
-                # pressure_index maps into the "ball" column the preprocessor expects
                 "ball":         [self.pressure_index],
             }
             return pd.DataFrame(data)
@@ -47,60 +40,49 @@ class CustomData:
         except Exception as e:
             raise CustomException(e, sys)
 
-
-# -------------------------------------------------------
-# PREDICT PIPELINE
-# -------------------------------------------------------
-
 class PredictPipeline:
 
     def __init__(self):
         self.model        = load_object("artifacts/model.pkl")
         self.preprocessor = load_object("artifacts/preprocessor.pkl")
-
-        # Load historical data — same filename as data_ingestion.py
         self.data = pd.read_csv(RAW_CSV_PATH)
-
-        # Resolve bowler_economy column name once at init
         self._resolve_economy_col()
-
-    # --------------------------------------------------
-    # RESOLVE ECONOMY COLUMN NAME
-    # --------------------------------------------------
 
     def _resolve_economy_col(self):
         df = self.data
-
         if "bowler_economy" in df.columns:
             self._economy_col = "bowler_economy"
-
         elif "bowler_economy_x" in df.columns:
             if "bowler_economy_y" in df.columns:
                 df["bowler_economy"] = df["bowler_economy_x"].combine_first(df["bowler_economy_y"])
             else:
                 df["bowler_economy"] = df["bowler_economy_x"]
             self._economy_col = "bowler_economy"
-
         elif "bowler_economy_y" in df.columns:
             df["bowler_economy"] = df["bowler_economy_y"]
             self._economy_col = "bowler_economy"
-
         else:
-            raise ValueError(
-                "Could not find bowler_economy column. "
-                "Expected: bowler_economy, bowler_economy_x, or bowler_economy_y"
-            )
+            raise ValueError("Could not find bowler_economy column.")
 
-    # --------------------------------------------------
-    # GET BOWLERS FOR A SPECIFIC TEAM  ← KEY FIX
-    # Only returns bowlers who have actually bowled for
-    # the selected bowling team in the historical dataset.
-    # --------------------------------------------------
+    def normalize_name(self, name: str) -> str:
+        aliases = {
+            "Virat Kohli": "V Kohli", "Rohit Sharma": "RG Sharma", "Jasprit Bumrah": "JJ Bumrah",
+            "Hardik Pandya": "HH Pandya", "Suryakumar Yadav": "SA Yadav", "MS Dhoni": "MS Dhoni",
+            "KL Rahul": "KL Rahul", "Shubman Gill": "Shubman Gill", "Rashid Khan": "Rashid Khan",
+            "Ravindra Jadeja": "RA Jadeja", "Glenn Maxwell": "GJ Maxwell", "Rishabh Pant": "RR Pant",
+            "Faf du Plessis": "F du Plessis", "David Warner": "DA Warner", "Sunil Narine": "SP Narine",
+            "Andre Russell": "AD Russell", "Trent Boult": "TA Boult", "Yuzvendra Chahal": "YS Chahal"
+        }
+        if name in aliases: 
+            return aliases[name]
+        
+        parts = name.split()
+        if len(parts) >= 2:
+            return f"{parts[0][0]} {parts[-1]}"
+        return name
 
     def get_team_bowlers(self, bowling_team: str) -> list:
         df = self.data
-
-        # Handle alternate column names gracefully
         if "bowling_team" not in df.columns:
             for alt in ["fielding_team", "field_team", "team_bowling"]:
                 if alt in df.columns:
@@ -109,16 +91,9 @@ class PredictPipeline:
                     break
 
         team_df = df[df["bowling_team"] == bowling_team]
-
         if len(team_df) == 0:
-            # Team not found — graceful fallback to all bowlers
             return sorted(df["bowler"].dropna().unique().tolist())
-
         return sorted(team_df["bowler"].dropna().unique().tolist())
-
-    # --------------------------------------------------
-    # MATCH PHASE
-    # --------------------------------------------------
 
     @staticmethod
     def get_phase(over: int) -> str:
@@ -129,30 +104,33 @@ class PredictPipeline:
         else:
             return "death"
 
-    # --------------------------------------------------
-    # FETCH HISTORICAL FEATURES
-    # --------------------------------------------------
-
     def get_stats(self, batsman: str, bowler: str) -> dict:
         df = self.data
+        
+        batsman_norm = self.normalize_name(batsman)
+        bowler_norm = self.normalize_name(bowler)
 
-        row = df[
-            (df["batsman"] == batsman) &
-            (df["bowler"]  == bowler)
-        ]
+        row = df[(df["batsman"] == batsman_norm) & (df["bowler"] == bowler_norm)]
 
         if len(row) == 0:
+            # FIX: Pull individual player stats instead of global means
+            bat_df = df[df["batsman"] == batsman_norm]
+            bowl_df = df[df["bowler"] == bowler_norm]
+
+            bat_sr = bat_df["batsman_strike_rate"].iloc[0] if len(bat_df) > 0 else df["batsman_strike_rate"].mean()
+            bowl_econ = bowl_df["bowler_economy"].iloc[0] if len(bowl_df) > 0 else df["bowler_economy"].mean()
+            bowl_dr = bowl_df["dismissal_rate"].mean() if len(bowl_df) > 0 else df["dismissal_rate"].mean()
+
             return {
-                "strike_rate_vs_bowler": df["strike_rate_vs_bowler"].mean(),
-                "dismissal_rate":        df["dismissal_rate"].mean(),
-                "bowler_economy":        df["bowler_economy"].mean(),
-                "batsman_strike_rate":   df["batsman_strike_rate"].mean(),
+                "strike_rate_vs_bowler": bat_sr,
+                "dismissal_rate":        bowl_dr,
+                "bowler_economy":        bowl_econ,
+                "batsman_strike_rate":   bat_sr,
                 "avg_runs":              df["avg_runs"].mean(),
                 "venue":                 df["venue"].mode()[0]
             }
 
         row = row.iloc[0]
-
         return {
             "strike_rate_vs_bowler": row["strike_rate_vs_bowler"],
             "dismissal_rate":        row["dismissal_rate"],
@@ -161,10 +139,6 @@ class PredictPipeline:
             "avg_runs":              row["avg_runs"],
             "venue":                 row["venue"]
         }
-
-    # --------------------------------------------------
-    # PREDICT PROBABILITIES
-    # --------------------------------------------------
 
     def predict_probabilities(self, features: pd.DataFrame) -> pd.DataFrame:
         try:
@@ -192,20 +166,3 @@ class PredictPipeline:
 
         except Exception as e:
             raise CustomException(e, sys)
-
-    # --------------------------------------------------
-    # TACTICAL SCORE
-    # Positive → bowler-favourable | Negative → batsman-favourable
-    # --------------------------------------------------
-
-    def tactical_score(self, prob_df: pd.DataFrame) -> float:
-        def _get_prob(outcome: str) -> float:
-            return float(prob_df[outcome].values[0]) if outcome in prob_df.columns else 0.0
-
-        dot_prob      = _get_prob("dot")
-        wicket_prob   = _get_prob("wicket")
-        boundary_prob = _get_prob("four") + _get_prob("six")
-
-        score = (0.6 * dot_prob) + (1.0 * wicket_prob) - (0.7 * boundary_prob)
-
-        return round(score, 4)
